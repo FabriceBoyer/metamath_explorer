@@ -1,0 +1,20 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/lib/metamath",
+    "src/lib/db",
+    "src/workers/metamath.worker.ts",
+    "src/store/metamath-store.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs-site",
+  "name": "Metamath Explorer — internal API",
+  "readme": "none",
+  "excludePrivate": false,
+  "excludeExternals": true,
+  "exclude": ["**/*.test.ts", "**/vendor/**"],
+  "skipErrorChecking": true,
+  "navigationLinks": {
+    "App": "../index.html"
+  }
+}

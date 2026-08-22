@@ -1,0 +1,4 @@
+dist
+docs-site
+node_modules
+src/vendor/metamath-js
