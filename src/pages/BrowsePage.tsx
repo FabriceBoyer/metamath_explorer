@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Search, ChevronRight, FolderTree } from "lucide-react";
 import { useMetamathStore } from "@/store/metamath-store";
@@ -27,6 +27,20 @@ export default function BrowsePage() {
   const index = useMetamathStore((s) => s.index);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // On mobile the table of contents sits above the results (single-column
+  // stack), so picking a section leaves the list below the fold unless we
+  // scroll it into view. `nearest` also makes this a no-op on desktop,
+  // where the two columns sit side by side and the content is already
+  // visible.
+  useEffect(() => {
+    if (!selectedId) return;
+    contentRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [selectedId]);
 
   const selectedPath = useMemo(
     () => (index && selectedId ? findPath(index.sections, selectedId) : null),
@@ -82,7 +96,7 @@ export default function BrowsePage() {
           />
         </aside>
 
-        <div className="min-w-0">
+        <div ref={contentRef} className="min-w-0 scroll-mt-20">
           {searchResults ? (
             <div>
               <h2 className="mb-3 text-sm font-semibold text-muted-foreground">
