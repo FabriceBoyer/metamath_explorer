@@ -69,8 +69,8 @@ export default function BrowsePage() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-[280px_1fr]">
-        <aside className="rounded-lg border border-border bg-card p-2 md:max-h-[75vh] md:overflow-y-auto">
+      <div className="grid min-w-0 gap-6 md:grid-cols-[280px_1fr]">
+        <aside className="min-w-0 rounded-lg border border-border bg-card p-2 md:max-h-[75vh] md:overflow-y-auto">
           <p className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             <FolderTree className="size-3.5" />
             {t("browse.toc")}
@@ -82,7 +82,7 @@ export default function BrowsePage() {
           />
         </aside>
 
-        <div>
+        <div className="min-w-0">
           {searchResults ? (
             <div>
               <h2 className="mb-3 text-sm font-semibold text-muted-foreground">

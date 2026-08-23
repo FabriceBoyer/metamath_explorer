@@ -7,9 +7,9 @@ import { SET_MM_SOURCE_URL } from "@/lib/metamath/config";
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between border-b border-border py-2.5 text-sm last:border-0">
+    <div className="flex flex-col gap-0.5 border-b border-border py-2.5 text-sm last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-mono">{value}</span>
+      <span className="min-w-0 font-mono sm:text-right">{value}</span>
     </div>
   );
 }

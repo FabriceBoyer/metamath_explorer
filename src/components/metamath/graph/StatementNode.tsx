@@ -60,12 +60,12 @@ function StatementNodeImpl({ data }: { data: StatementNodeData }) {
 
       <button
         onClick={() => data.onOpen(data.label)}
-        className="flex w-full items-center gap-1.5 text-left"
+        className="flex w-full min-w-0 items-center gap-1.5 text-left"
       >
         <span
           className={cn("size-2 shrink-0 rounded-full", KIND_DOT[data.kind])}
         />
-        <span className="truncate font-mono text-sm font-semibold">
+        <span className="min-w-0 flex-1 truncate font-mono text-sm font-semibold">
           {data.label}
         </span>
       </button>

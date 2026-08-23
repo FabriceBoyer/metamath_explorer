@@ -1,7 +1,7 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Menu } from "lucide-react";
-import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LanguageToggle } from "./LanguageToggle";
@@ -11,6 +11,11 @@ import { DatabaseStatusPill } from "@/components/metamath/DatabaseStatusPill";
 export function Navbar() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   const links = [
     { to: "/", label: t("nav.home"), end: true },
@@ -58,8 +63,9 @@ export function Navbar() {
             className="md:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label="Menu"
+            aria-expanded={open}
           >
-            <Menu />
+            {open ? <X /> : <Menu />}
           </Button>
         </div>
       </div>

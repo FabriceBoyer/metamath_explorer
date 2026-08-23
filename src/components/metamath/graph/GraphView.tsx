@@ -183,7 +183,7 @@ export function GraphView({ focusLabel }: { focusLabel: string }) {
       >
         <Background />
         <Controls showInteractive={false} />
-        <MiniMap pannable zoomable className="!bg-card" />
+        <MiniMap pannable zoomable className="!hidden !bg-card sm:!block" />
       </ReactFlow>
       {notice && (
         <div className="absolute left-1/2 top-3 -translate-x-1/2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground shadow-sm">

@@ -29,7 +29,7 @@ function TreeNode({
     <div>
       <div
         className={cn(
-          "flex cursor-pointer items-center gap-1 rounded-md px-2 py-1.5 text-sm hover:bg-muted",
+          "flex min-w-0 cursor-pointer items-center gap-1 rounded-md px-2 py-1.5 text-sm hover:bg-muted",
           isSelected && "bg-primary/10 text-primary font-medium",
         )}
         style={{ paddingLeft: `${depth * 14 + 8}px` }}
@@ -55,7 +55,7 @@ function TreeNode({
         ) : (
           <span className="size-4 shrink-0" />
         )}
-        <span className="truncate">{node.title}</span>
+        <span className="min-w-0 flex-1 truncate">{node.title}</span>
         <span className="ml-auto shrink-0 pl-2 text-xs text-muted-foreground">
           {countLabels(node)}
         </span>
