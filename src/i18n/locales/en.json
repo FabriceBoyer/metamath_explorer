@@ -180,6 +180,18 @@
     "aboutBody": "set.mm is fetched once from the official GitHub mirror and stored in IndexedDB. Parsing and proof verification run entirely in a background thread (Web Worker) using a vendored copy of google/metamath.js — no server is ever involved.",
     "license": "Licenses & attribution"
   },
+  "player": {
+    "tableView": "Table view",
+    "stepByStep": "Step by step",
+    "applying": "Applying",
+    "template": "Generic template",
+    "substitutions": "Substitutions",
+    "hypotheses": "Hypotheses satisfied",
+    "result": "Result after substitution",
+    "fromStep": "from step {{n}}",
+    "pushes": "pushes",
+    "done": "Proof complete — the stack now holds exactly the theorem's statement."
+  },
   "notFound": {
     "title": "Page not found",
     "body": "The page you're looking for doesn't exist.",

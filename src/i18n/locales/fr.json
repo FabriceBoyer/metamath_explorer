@@ -180,6 +180,18 @@
     "aboutBody": "set.mm est téléchargé une fois depuis le miroir GitHub officiel et stocké dans IndexedDB. L'analyse et la vérification des preuves s'exécutent entièrement dans un thread d'arrière-plan (Web Worker) à l'aide d'une copie vendorisée de google/metamath.js — aucun serveur n'est jamais impliqué.",
     "license": "Licences et attribution"
   },
+  "player": {
+    "tableView": "Vue tableau",
+    "stepByStep": "Pas à pas",
+    "applying": "Application de",
+    "template": "Modèle générique",
+    "substitutions": "Substitutions",
+    "hypotheses": "Hypothèses vérifiées",
+    "result": "Résultat après substitution",
+    "fromStep": "depuis l'étape {{n}}",
+    "pushes": "empile",
+    "done": "Preuve terminée — la pile contient exactement l'énoncé du théorème."
+  },
   "notFound": {
     "title": "Page introuvable",
     "body": "La page que vous cherchez n'existe pas.",

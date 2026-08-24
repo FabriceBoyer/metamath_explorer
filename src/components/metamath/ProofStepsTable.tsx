@@ -4,17 +4,11 @@ import { Link } from "react-router-dom";
 import { MathFormula } from "@/components/metamath/MathFormula";
 import { Button } from "@/components/ui/button";
 import { useMetamathStore } from "@/store/metamath-store";
-
-export interface ProofStepRow {
-  ref: string | number;
-  typecode: string;
-  expression: string[];
-  args: Array<number | string>;
-}
+import type { VerifiedProofStep } from "@/lib/metamath/types";
 
 const PAGE_SIZE = 60;
 
-export function ProofStepsTable({ steps }: { steps: ProofStepRow[] }) {
+export function ProofStepsTable({ steps }: { steps: VerifiedProofStep[] }) {
   const { t } = useTranslation();
   const statements = useMetamathStore((s) => s.index?.statements);
   const [visible, setVisible] = useState(PAGE_SIZE);

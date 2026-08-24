@@ -1,43 +1,12 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { AnimatePresence, motion } from "framer-motion";
-import { Play, Pause, SkipBack, SkipForward, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { MathFormula } from "@/components/metamath/MathFormula";
+import { PlaybackControls } from "@/components/metamath/proof-player/PlaybackControls";
+import { ProofStackPanel } from "@/components/metamath/proof-player/ProofStackPanel";
 import { computeToyProof } from "@/lib/metamath/toy-example";
-import type { ToyStep } from "@/lib/metamath/toy-example";
-import { cn } from "@/lib/utils";
-
-interface StackItem {
-  id: number;
-  typecode: string;
-  expression: string[];
-  fromStep: number;
-}
-
-function replayStacks(steps: ToyStep[]): StackItem[][] {
-  const stacks: StackItem[][] = [[]];
-  let current: StackItem[] = [];
-  let uid = 0;
-
-  steps.forEach((step, i) => {
-    const popCount = step.args.length;
-    current = current.slice(0, current.length - popCount);
-    current = [
-      ...current,
-      {
-        id: uid++,
-        typecode: step.typecode,
-        expression: step.expression,
-        fromStep: i,
-      },
-    ];
-    stacks.push(current);
-  });
-
-  return stacks;
-}
+import { replayStacks } from "@/lib/metamath/proof-playback";
 
 export function ToyProofStepper() {
   const { t } = useTranslation();
@@ -75,50 +44,26 @@ export function ToyProofStepper() {
   return (
     <Card>
       <CardContent className="pt-5">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={reset}
-              aria-label={t("howItWorks.stepperReset")}
-            >
-              <RotateCcw />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={prev}
-              disabled={stepIndex === 0}
-              aria-label={t("howItWorks.stepperPrev")}
-            >
-              <SkipBack />
-            </Button>
-            <Button
-              size="icon"
-              onClick={() => (atEnd ? reset() : setPlaying((p) => !p))}
-              aria-label={
-                playing
-                  ? t("howItWorks.stepperPause")
-                  : t("howItWorks.stepperPlay")
-              }
-            >
-              {playing ? <Pause /> : <Play />}
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={next}
-              disabled={atEnd}
-              aria-label={t("howItWorks.stepperNext")}
-            >
-              <SkipForward />
-            </Button>
-          </div>
-          <span className="font-mono text-xs text-muted-foreground">
-            {t("howItWorks.stepperStepOf", { current: stepIndex, total })}
-          </span>
-        </div>
+        <PlaybackControls
+          stepIndex={stepIndex}
+          playing={playing}
+          atEnd={atEnd}
+          onReset={reset}
+          onPrev={prev}
+          onNext={next}
+          onTogglePlay={() => setPlaying((p) => !p)}
+          labels={{
+            reset: t("howItWorks.stepperReset"),
+            prev: t("howItWorks.stepperPrev"),
+            next: t("howItWorks.stepperNext"),
+            play: t("howItWorks.stepperPlay"),
+            pause: t("howItWorks.stepperPause"),
+            stepOf: t("howItWorks.stepperStepOf", {
+              current: stepIndex,
+              total,
+            }),
+          }}
+        />
 
         <div className="mb-4 min-h-14 rounded-md border border-dashed border-border bg-muted/40 p-3">
           {currentStep ? (
@@ -145,44 +90,11 @@ export function ToyProofStepper() {
           )}
         </div>
 
-        <div>
-          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t("howItWorks.stepperStack")}
-          </h4>
-          <div className="flex min-h-40 flex-col-reverse gap-1.5 rounded-md border border-border bg-card p-3">
-            {stack.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                {t("howItWorks.stepperEmpty")}
-              </p>
-            )}
-            <AnimatePresence initial={false}>
-              {stack.map((item, i) => (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 12 }}
-                  transition={{ duration: 0.25 }}
-                  className={cn(
-                    "flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm",
-                    i === stack.length - 1
-                      ? "border-primary/40 bg-primary/5"
-                      : "border-border",
-                  )}
-                >
-                  <MathFormula
-                    typecode={item.typecode}
-                    tokens={item.expression}
-                  />
-                  <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                    #{item.fromStep + 1}
-                  </span>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </div>
+        <ProofStackPanel
+          title={t("howItWorks.stepperStack")}
+          emptyLabel={t("howItWorks.stepperEmpty")}
+          stack={stack}
+        />
 
         {atEnd && (
           <motion.p

@@ -1,4 +1,4 @@
-import type { MetamathIndex } from "./types";
+import type { MetamathIndex, VerifiedProofStep } from "./types";
 
 export type LoadingPhase =
   "idle" | "fetching" | "parsing" | "indexing" | "linking" | "ready" | "error";
@@ -33,12 +33,7 @@ export interface VerifyResultMessage {
   label: string;
   ok: boolean;
   error?: string;
-  steps?: Array<{
-    ref: string | number;
-    typecode: string;
-    expression: string[];
-    args: Array<number | string>;
-  }>;
+  steps?: VerifiedProofStep[];
   durationMs: number;
 }
 

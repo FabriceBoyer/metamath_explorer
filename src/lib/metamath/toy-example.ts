@@ -1,4 +1,5 @@
 import { process as engineProcess } from "@/vendor/metamath-js/descent";
+import type { VerifiedProofStep } from "./types";
 
 /**
  * A miniature, self-contained Metamath database: just enough of
@@ -30,17 +31,10 @@ idALT $p |- ( ph -> ph ) $=
   ( wi ax-1 ax-2 ax-mp ) AAABZBZFAACAFABBGFBAFCAFADEE $.
 `;
 
-export interface ToyStep {
-  ref: string | number;
-  typecode: string;
-  expression: string[];
-  args: Array<number | string>;
-}
-
 export interface ToyProof {
   label: string;
   theorem: string[];
-  steps: ToyStep[];
+  steps: VerifiedProofStep[];
 }
 
 /** Runs the vendored engine on {@link TOY_SOURCE} and returns the fully

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -7,6 +7,8 @@ import {
   Loader2,
   ShieldCheck,
   ShieldAlert,
+  Table2,
+  Footprints,
 } from "lucide-react";
 import { useMetamathStore } from "@/store/metamath-store";
 import { LoadingPanel } from "@/components/metamath/LoadingPanel";
@@ -14,8 +16,10 @@ import { KindBadge } from "@/components/metamath/KindBadge";
 import { MathFormula } from "@/components/metamath/MathFormula";
 import { CommentText } from "@/components/metamath/CommentText";
 import { ProofStepsTable } from "@/components/metamath/ProofStepsTable";
+import { ProofPlayer } from "@/components/metamath/proof-player/ProofPlayer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { getUsageIndex } from "@/lib/metamath/usage-index";
 
 export default function StatementPage() {
@@ -32,9 +36,11 @@ export default function StatementPage() {
   const usedBy = usage[label] ?? [];
   const verifyResult = verifyResults[label];
   const isVerifying = pendingVerifications.has(label);
+  const [viewMode, setViewMode] = useState<"table" | "player">("table");
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
+    setViewMode("table");
   }, [label]);
 
   if (!index) return <LoadingPanel />;
@@ -248,7 +254,42 @@ export default function StatementPage() {
             )}
 
             {verifyResult?.ok && verifyResult.steps && (
-              <ProofStepsTable steps={verifyResult.steps} />
+              <div>
+                <div className="mb-3 inline-flex rounded-md border border-border bg-muted/40 p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("table")}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors",
+                      viewMode === "table"
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    <Table2 className="size-3.5" />
+                    {t("player.tableView")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("player")}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors",
+                      viewMode === "player"
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    <Footprints className="size-3.5" />
+                    {t("player.stepByStep")}
+                  </button>
+                </div>
+
+                {viewMode === "table" ? (
+                  <ProofStepsTable steps={verifyResult.steps} />
+                ) : (
+                  <ProofPlayer steps={verifyResult.steps} />
+                )}
+              </div>
             )}
           </CardContent>
         </Card>

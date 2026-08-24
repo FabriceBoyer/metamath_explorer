@@ -81,3 +81,18 @@ export interface MetamathIndex {
 
 /** Reverse dependency map: label -> labels whose proof references it. */
 export type UsageIndex = Record<string, string[]>;
+
+/**
+ * One fully-resolved step of a verified proof (the shape produced by the
+ * vendored engine's `verify()` once compressed proofs have been exploded —
+ * see `resultFn(false, false)` call sites). `ref` is either a statement
+ * label ($f/$e/$a/$p) or, for the toy demo's own dispatch, unused. `args`
+ * lists the indices (into the same steps array) of the stack entries this
+ * step consumed — empty for a bare hypothesis/floating push.
+ */
+export interface VerifiedProofStep {
+  ref: string | number;
+  typecode: string;
+  expression: string[];
+  args: Array<number | string>;
+}
