@@ -84,4 +84,63 @@ describe("enrichIndexWithEngine", () => {
     expect(Array.isArray(steps)).toBe(true);
     expect((steps as unknown[]).length).toBeGreaterThan(0);
   });
+
+  it("restores a theorem's own scope so its disjoint-variable requirements are still visible when verified later", () => {
+    // Regression test for a real bug: verifying a theorem long after the
+    // whole file has been processed means every $ { $ } block has already
+    // been popped off the engine's scope stack, so a $d requirement
+    // declared only in the theorem's own (now-closed) block could no
+    // longer be found — verify() would wrongly throw "Undeclared disjoint
+    // variable" on a perfectly valid proof. `ax-dv` requires its two
+    // mandatory variables to be disjoint; `thm` uses it with A/B, which
+    // are only declared disjoint inside thm's own block.
+    const DV_SOURCE = `
+      $c wff |- -> ( ) $.
+      $v ph ps A B $.
+      wph $f wff ph $.
+      wps $f wff ps $.
+      wA $f wff A $.
+      wB $f wff B $.
+      \${
+        $d ph ps $.
+        ax-dv $a |- ( ph -> ps ) $.
+      \$}
+      \${
+        $d A B $.
+        thm $p |- ( A -> B ) $= wA wB ax-dv $.
+      \$}
+    `;
+    const dvMeta = {
+      sourceUrl: "test",
+      fetchedAt: new Date(0).toISOString(),
+      byteLength: DV_SOURCE.length,
+      sha256: "test",
+    };
+    const dvIndex = buildFastIndex(DV_SOURCE, dvMeta);
+    const { mm: dvMm, dvScopeByLabel } = enrichIndexWithEngine(
+      DV_SOURCE,
+      dvIndex,
+    );
+    const dvLabels = dvMm.labels as Record<string, unknown[]>;
+    const frames = dvMm.frames as unknown as { stack: unknown[] };
+    const resultFn = dvLabels["thm"][2] as (
+      generate?: boolean,
+      markers?: boolean,
+    ) => unknown[];
+
+    // Without restoring the snapshot (i.e. the pre-fix behavior), the
+    // whole file has already been processed and thm's block is closed.
+    expect(() => resultFn(false, false)).toThrow(/disjoint variable/i);
+
+    // With the theorem's own scope restored, verification succeeds.
+    const original = frames.stack;
+    frames.stack = dvScopeByLabel.get("thm")!;
+    try {
+      const steps = resultFn(false, false);
+      expect(Array.isArray(steps)).toBe(true);
+      expect(steps.length).toBeGreaterThan(0);
+    } finally {
+      frames.stack = original;
+    }
+  });
 });

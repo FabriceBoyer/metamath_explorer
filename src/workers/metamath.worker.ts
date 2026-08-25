@@ -20,6 +20,7 @@ import type {
 declare const self: DedicatedWorkerGlobalScope;
 
 let liveMm: MM | undefined;
+let liveDvScopeByLabel: Map<string, unknown[]> | undefined;
 
 function post(message: WorkerResponse) {
   self.postMessage(message);
@@ -101,8 +102,9 @@ async function loadDatabase(sourceUrl: string, forceRefresh: boolean) {
       // Still rebuild the live engine in the background so on-demand
       // verification works, without blocking the (already complete) view.
       queueMicrotask(() => {
-        const { mm } = enrichIndexWithEngine(text, cachedIndex);
+        const { mm, dvScopeByLabel } = enrichIndexWithEngine(text, cachedIndex);
         liveMm = mm;
+        liveDvScopeByLabel = dvScopeByLabel;
       });
       return;
     }
@@ -126,8 +128,9 @@ async function loadDatabase(sourceUrl: string, forceRefresh: boolean) {
       phase: "linking",
       processedStatements: index.meta.statementCount,
     });
-    const { mm } = enrichIndexWithEngine(text, index);
+    const { mm, dvScopeByLabel } = enrichIndexWithEngine(text, index);
     liveMm = mm;
+    liveDvScopeByLabel = dvScopeByLabel;
     await setCachedIndex(sha256, index);
     post({ type: "ready", index, fromCache: false, enriched: true });
   } catch (error) {
@@ -150,6 +153,17 @@ function verifyLabel(label: string) {
     });
     return;
   }
+
+  // Disjoint-variable checks inside verify() consult the engine's *current*
+  // scope (mm.frames.stack), but by now the whole file has been fed and
+  // every ${ … $} block long since popped back to just the root frame.
+  // Temporarily restore the frame stack exactly as it was when this
+  // theorem was defined — see processWithScopeSnapshots() — so its own
+  // (possibly locally-scoped) $d requirements are still visible.
+  const frames = liveMm.frames as unknown as { stack: unknown[] };
+  const originalStack = frames.stack;
+  const scopeSnapshot = liveDvScopeByLabel?.get(label);
+  if (scopeSnapshot) frames.stack = scopeSnapshot;
 
   try {
     const labels = liveMm.labels as Record<string, unknown[]>;
@@ -183,6 +197,8 @@ function verifyLabel(label: string) {
       error: error instanceof Error ? error.message : String(error),
       durationMs: performance.now() - start,
     });
+  } finally {
+    frames.stack = originalStack;
   }
 }
 
@@ -194,6 +210,7 @@ self.onmessage = (event: MessageEvent<WorkerCommand>) => {
     verifyLabel(command.label);
   } else if (command.type === "clear-cache") {
     liveMm = undefined;
+    liveDvScopeByLabel = undefined;
     void clearAllCaches().then(() => {
       post({ type: "progress", phase: "idle" });
     });
